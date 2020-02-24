@@ -1,9 +1,17 @@
+// Notes Rows
+
+/**
+ * 0 - Ford Motor Company
+ * 1 - AMD
+ * 2 - Bank of America Corp.
+ * 3 - General Electric
+ * 4 - Microsoft
+ * 5 - NIO Inc
+ * 6 - Apple Inc
+ * 7 - Vale S.A.
+ */
+
 const http = require('https');
-
-// TO-DO
-
-// REMOVE FIRST 
-
 console.log("hi")
 let cc  = 0;
 async function getFinancePage(){
