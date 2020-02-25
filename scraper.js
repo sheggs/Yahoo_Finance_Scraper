@@ -1,24 +1,23 @@
 // Notes Rows
 
 /**
- * 0 - Ford Motor Company
- * 1 - AMD
- * 2 - Bank of America Corp.
- * 3 - General Electric
- * 4 - Microsoft
- * 5 - NIO Inc
- * 6 - Apple Inc
- * 7 - Vale S.A.
+ * 0 - Ford Motor Company (F)
+ * 1 - AMD (AMD)
+ * 2 - Bank of America Corp. (BOA)
+ * 3 - General Electric (GE)
+ * 4 - Microsoft (MSFT)
+ * 5 - NIO Inc (NIO)
+ * 6 - Apple Inc (AAPL)
+ * 7 - Vale S.A. (VALE)
  */
 
 const http = require('https');
-console.log("hi")
-let cc  = 0;
+
+
 async function getFinancePage(){
-    let data = ''
     return new Promise( (res,rej) => {
-        http.get("https://finance.yahoo.com/most-active", (response) => {
-            data = ""
+        http.get("https://finance.yahoo.com/most-active?offset=0&count=100", (response) => {
+            let data = ""
             response.on('data', (c) => {
                 data += c
                 
@@ -30,14 +29,24 @@ async function getFinancePage(){
     })
 
 }
+async function getFinancialData(companyName,callback){
+    let result = ""
+    await getFinancePage().then((webData) => {
+        let getTag = (webData.search("root.App.main =")) + 16
+        webData = webData.substr(getTag)
+        let end = (webData.search("</script>"))-12
+        let tt = (webData.substr(0,end))
+        let json_d = JSON.parse(tt)
+        // Expressed as an Array of 25
+        let JSON_Stocks = (json_d.context.dispatcher.stores.ScreenerResultsStore.results.rows)
+        for(let i = 0; i<JSON_Stocks.length;i++){
+            if(JSON_Stocks[i].longName.includes(companyName)){
+                callback(JSON_Stocks[i])
+            }
+        }
+    })
+}
 
-getFinancePage().then((d) => {
-    let webData = (d);
-
-    let getTag = (webData.search("root.App.main =")) + 16
-    webData = webData.substr(getTag)
-    let end = (webData.search("</script>"))-12
-    let tt = (webData.substr(0,end))
-    let json_d = JSON.parse(tt)
-    console.log(json_d.context.dispatcher.stores.ScreenerResultsStore.results.rows[0])
+getFinancialData("Virgin Galactic Holdings, Inc.", (r) => {
+    console.log(r)
 })
