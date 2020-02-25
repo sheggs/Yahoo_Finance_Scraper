@@ -1,6 +1,13 @@
 // Notes Rows
 
 /**
+ *  This only gets the 100 stcoks Yahoo stores. 
+ * 
+ *  
+ * To get the page data call the getFinancePage() function. This returns a promise.
+ * To get the JSON for a company use getFinancialData(Company Name, Promise for the Yahoo Page, (callback) => {})
+ * 
+ * 
  * 0 - Ford Motor Company (F)
  * 1 - AMD (AMD)
  * 2 - Bank of America Corp. (BOA)
@@ -29,9 +36,9 @@ async function getFinancePage(){
     })
 
 }
-async function getFinancialData(companyName,callback){
+async function getFinancialData(companyName,pageData,callback){
     let result = ""
-    await getFinancePage().then((webData) => {
+    await pageData.then((webData) => {
         let getTag = (webData.search("root.App.main =")) + 16
         webData = webData.substr(getTag)
         let end = (webData.search("</script>"))-12
@@ -47,6 +54,9 @@ async function getFinancialData(companyName,callback){
     })
 }
 
-getFinancialData("Virgin Galactic Holdings, Inc.", (r) => {
+
+/** Test */
+let pageData = getFinancePage();
+getFinancialData("Virgin Galactic Holdings, Inc.",pageData, (r) => {
     console.log(r)
 })
