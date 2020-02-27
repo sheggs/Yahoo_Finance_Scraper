@@ -36,19 +36,52 @@ async function getFinancePage(){
     })
 
 }
+
+// https://finance.yahoo.com/quote/?StockID
+
+async function getSpecifiedStock(id){
+    return new Promise((res,rej) => {
+        http.get("https://finance.yahoo.com/quote/" + id, (r) =>{
+            let resp_data = ""
+            r.on('data',(context) => {
+                resp_data += context
+            })
+            r.on('end',(c) => {
+                res(resp_data)
+            })
+        })
+    })
+}
+async function getSpecificStock(id, callback) {
+    await getSpecifiedStock(id).then((webData) => {
+        const getTag = (webData.search("root.App.main =")) + 16
+        webData = webData.substr(getTag)
+        const end = (webData.search("</script>"))-12
+        const tt = (webData.substr(0,end))
+        const json_d = JSON.parse(tt)
+        const stockD = (json_d.context.dispatcher.stores.StreamDataStore.quoteData)
+       // console.log(stockD)
+        for(let a in stockD){
+            if(a == id){
+                callback(stockD[a])
+            }
+            
+        }
+    })
+}
 async function getFinancialData(companyName,pageData,callback){
     let result = ""
     await pageData.then((webData) => {
-        let getTag = (webData.search("root.App.main =")) + 16
+        const getTag = (webData.search("root.App.main =")) + 16
         webData = webData.substr(getTag)
-        let end = (webData.search("</script>"))-12
-        let tt = (webData.substr(0,end))
-        let json_d = JSON.parse(tt)
+        const end = (webData.search("</script>"))-12
+        const tt = (webData.substr(0,end))
+        const json_d = JSON.parse(tt)
         // Expressed as an Array of 25
-        let JSON_Stocks = (json_d.context.dispatcher.stores.ScreenerResultsStore.results.rows)
+        const JSON_Stocks = (json_d.context.dispatcher.stores.ScreenerResultsStore.results.rows)
         for(let i = 0; i<JSON_Stocks.length;i++){
             if(JSON_Stocks[i].longName.includes(companyName)){
-                callback(JSON_Stocks[i])
+                callback(JSON_Stocks)
             }
         }
     })
@@ -56,7 +89,18 @@ async function getFinancialData(companyName,pageData,callback){
 
 
 /** Test */
-let pageData = getFinancePage();
-getFinancialData("Virgin Galactic Holdings, Inc.",pageData, (r) => {
-    console.log(r)
+
+// let pageData = getFinancePage();
+getSpecificStock("JD",(c) => {
+    console.log(c)
 })
+
+
+// getSpecificStock("MSFT", (c) => {
+//     console.log("hi")
+//     console.log(c)
+// })
+
+// getFinancialData("Apple",pageData, (r) => {
+//     console.log(r)
+// })
